@@ -17,23 +17,24 @@ defmodule Cloudevents do
   Cloudevents implementation for Elixir. This is the main module.
   """
   alias Cloudevents.Format
+  alias Cloudevents.HttpBinding
 
-  @type cloud_event :: Cloudevents.V_1_0 | Cloudevents.V_0_2 | Cloudevents.V_0_1
-  @type cloud_event_result :: {:ok, cloud_event()} | {:error, Cloudevents.ParseError.t()}
+  @type cloudevent :: Format.V_1_0.Event.t() | Format.V_0_2.Event.t() | Format.V_0_1.Event.t()
 
-  # @spec from_map(map()) :: cloud_event_result()
+  # @spec from_map(map()) :: cloudevent_result()
   # defdelegate from_map(map), to: Cloudevents.Parser.Map, as: :parse
 
   @doc "Decodes a JSON-encoded Cloudevent."
-  @spec from_json(json :: binary()) :: cloud_event_result()
+  @spec from_json(json :: binary()) ::
+          {:ok, cloudevent()} | {:error, %Cloudevents.Format.Decoder.DecodeError{}}
   defdelegate from_json(json), to: Format.Decoder.JSON, as: :decode
 
   @doc "Encodes a Cloudevents using JSON format."
-  @spec to_json(cloud_event()) :: binary()
-  defdelegate to_json(cloud_event), to: Format.Encoder.JSON, as: :encode
+  @spec to_json(cloudevent()) :: binary()
+  defdelegate to_json(cloudevent), to: Format.Encoder.JSON, as: :encode
 
   # # TODO: Add a callback for obtaining the Avro schema.
-  # @spec from_avro(avro :: binary()) :: cloud_event_result()
+  # @spec from_avro(avro :: binary()) :: cloudevent_result()
   # defdelegate from_avro(avro), to: Cloudevents.Parser.Avro, as: :parse
 
   @type http_body :: binary()
@@ -51,29 +52,29 @@ defmodule Cloudevents do
       end
   """
   @spec from_http_message(http_body, http_headers) ::
-          {:ok, [cloud_event()]} | {:error, Cloudevents.ParseError.t()}
-  defdelegate from_http_message(http_body, http_headers), to: Cloudevents.HttpBinding.Decoder
+          {:ok, [cloudevent()]} | {:error, Cloudevents.ParseError.t()}
+  defdelegate from_http_message(http_body, http_headers), to: HttpBinding.Decoder
 
   @doc "Serialize an event in HTTP binary content mode."
-  @spec to_binary_http_message(cloud_event()) :: {http_body, http_headers}
-  defdelegate to_binary_http_message(event), to: Cloudevents.HttpBinding.V_1_0.Encoder
+  @spec to_binary_http_message(cloudevent()) :: {http_body, http_headers}
+  defdelegate to_binary_http_message(event), to: HttpBinding.V_1_0.Encoder
 
   @doc "Serialize an event in HTTP structured content mode."
-  @spec to_structured_http_message(cloud_event(), event_format :: :json) ::
+  @spec to_structured_http_message(cloudevent(), event_format :: :json) ::
           {http_body, http_headers}
   defdelegate to_structured_http_message(event, event_format),
-    to: Cloudevents.HttpBinding.V_1_0.Encoder
+    to: HttpBinding.V_1_0.Encoder
 
   # @doc "Serialize one or more events in HTTP batched content mode."
-  # @spec to_batched_http_message([cloud_event()]) :: {http_body, http_headers}
-  # defdelegate to_batched_http_message(events), to: Cloudevents.HttpBinding.V_1_0.Encoder
+  # @spec to_batched_http_message([cloudevent()]) :: {http_body, http_headers}
+  # defdelegate to_batched_http_message(events), to: HttpBinding.V_1_0.Encoder
 
   # @type kafka_body :: binary()
   # @type kafka_headers :: [{String.t(), String.t()}]
-  # @spec from_kafka_message(kafka_body, kafka_headers) :: cloud_event_result()
+  # @spec from_kafka_message(kafka_body, kafka_headers) :: cloudevent_result()
 
   # @type kafka_content_mode :: :binary | :structured
-  # @spec to_kafka_message(cloud_event(), :binary) :: {kafka_body, kafka_headers}
-  # @spec to_kafka_message(cloud_event(), :structured, event_format :: :json | :avro) ::
+  # @spec to_kafka_message(cloudevent(), :binary) :: {kafka_body, kafka_headers}
+  # @spec to_kafka_message(cloudevent(), :structured, event_format :: :json | :avro) ::
   #         {kafka_body, kafka_headers}
 end

@@ -3,7 +3,7 @@ defmodule Cloudevents.Format.Decoder.Map do
   alias Cloudevents.Format.V_1_0
 
   @doc "Converts an Elixir map to a Cloudevent."
-  @spec decode(map()) :: {:ok, Cloudevents.cloud_event()} | {:error, any}
+  @spec decode(map()) :: {:ok, Cloudevents.cloudevent()} | {:error, any}
   def decode(map) do
     with {:error, _} = error <- V_1_0.Event.from_map(map) do
       error

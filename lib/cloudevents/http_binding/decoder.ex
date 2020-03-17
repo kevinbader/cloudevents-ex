@@ -10,7 +10,7 @@ defmodule Cloudevents.HttpBinding.Decoder do
   parsing error, older versions of the spec may be considered as a fallback.
   """
   @spec from_http_message(Cloudevents.http_body(), Cloudevents.http_headers()) ::
-          Cloudevents.cloud_event_result()
+          Cloudevents.cloudevent_result()
   def from_http_message(http_body, http_headers) do
     with {:error, _} = error <- V_1_0.Decoder.from_http_message(http_body, http_headers) do
       error

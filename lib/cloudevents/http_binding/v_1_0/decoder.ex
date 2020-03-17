@@ -10,18 +10,15 @@ defmodule Cloudevents.HttpBinding.V_1_0.Decoder do
   [content modes]: https://github.com/cloudevents/spec/blob/v1.0/http-protocol-binding.md#13-content-modes
   """
   @spec from_http_message(Cloudevents.http_body(), Cloudevents.http_headers()) ::
-          {:ok, [Cloudevents.cloud_event()]} | {:error, Cloudevents.ParseError.t()}
+          {:ok, [Cloudevents.cloudevent()]} | {:error, any}
   def from_http_message(http_body, http_headers) do
-    events =
-      case content_type(http_headers) do
-        "application/cloudevents" -> parse_structured(http_body, "json")
-        "application/cloudevents+" <> event_format -> parse_structured(http_body, event_format)
-        "application/cloudevents-batch" -> parse_batched(http_body, "json")
-        "application/cloudevents-batch+" <> event_format -> parse_batched(http_body, event_format)
-        event_format -> parse_binary(http_headers, http_body, event_format)
-      end
-
-    events
+    case content_type(http_headers) do
+      "application/cloudevents" -> parse_structured(http_body, "json")
+      "application/cloudevents+" <> event_format -> parse_structured(http_body, event_format)
+      "application/cloudevents-batch" -> parse_batched(http_body, "json")
+      "application/cloudevents-batch+" <> event_format -> parse_batched(http_body, event_format)
+      event_format -> parse_binary(http_headers, http_body, event_format)
+    end
   end
 
   # ---

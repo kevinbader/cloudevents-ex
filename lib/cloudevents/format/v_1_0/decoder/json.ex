@@ -2,15 +2,8 @@ defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
   @moduledoc false
   @behaviour Cloudevents.Format.Decoder.JSON
 
+  alias Cloudevents.Format.Decoder.DecodeError
   alias Cloudevents.Format.V_1_0.Event
-
-  defmodule DecodeError do
-    @moduledoc "What was given could not be decoded to a Cloudevent."
-    defexception [:cause]
-
-    def message(%__MODULE__{cause: cause}),
-      do: "Failed to decode Cloudevent: #{Exception.message(cause)}"
-  end
 
   @doc """
   Turns a JSON string into a Cloudevent 1.0 struct.
@@ -52,7 +45,7 @@ defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
 
       iex> not_a_json = "..."
       iex> Cloudevents.Format.V_1_0.Decoder.JSON.decode(not_a_json)
-      {:error, %Cloudevents.Format.V_1_0.Decoder.JSON.DecodeError{
+      {:error, %Cloudevents.Format.Decoder.DecodeError{
                 cause: %Jason.DecodeError{data: "...", position: 0, token: nil}}}
 
   ### Missing required fields
@@ -62,7 +55,7 @@ defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
       ...>   "type": "com.github.pull.create"
       ...> })
       iex> Cloudevents.Format.V_1_0.Decoder.JSON.decode(json)
-      {:error, %Cloudevents.Format.V_1_0.Decoder.JSON.DecodeError{
+      {:error, %Cloudevents.Format.Decoder.DecodeError{
                 cause: %Cloudevents.Format.V_1_0.Event.ParseError{message: "missing source"}}}
 
   ### Invalid extension attribute name
@@ -75,7 +68,7 @@ defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
       ...>   "an extension attribute that contains spaces": "is not allowed"
       ...> })
       iex> Cloudevents.Format.V_1_0.Decoder.JSON.decode(json)
-      {:error, %Cloudevents.Format.V_1_0.Decoder.JSON.DecodeError{
+      {:error, %Cloudevents.Format.Decoder.DecodeError{
                 cause: %Cloudevents.Format.V_1_0.Event.ParseError{message: "invalid extension attributes: \\"an extension attribute that contains spaces\\""}}}
 
   """
