@@ -5,7 +5,6 @@ defmodule Cloudevents.Format.V_0_1.Event do
 
   @typedoc @desc
   typedstruct do
-    field(:raw, any, enforce: false)
     field(:cloud_events_version, String.t(), default: "0.1")
     field(:event_type, String.t(), enforce: true)
     field(:source, String.t(), enforce: true)

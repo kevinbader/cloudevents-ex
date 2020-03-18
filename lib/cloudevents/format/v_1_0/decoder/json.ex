@@ -26,7 +26,6 @@ defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
       ...> })
       iex> {:ok, event} = Cloudevents.Format.V_1_0.Decoder.JSON.decode(json)
       iex> with %Cloudevents.Format.V_1_0.Event{
-      ...>   raw: ^json,
       ...>   type: "com.github.pull.create",
       ...>   source: "https://github.com/cloudevents/spec/pull",
       ...>   id: "A234-1234-1234",
@@ -86,11 +85,7 @@ defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
           decode_json_if_possible(event.datacontenttype, event.data)
         end
 
-      event =
-        event
-        |> Map.put(:data, data)
-        |> Map.put(:raw, json)
-
+      event = Map.put(event, :data, data)
       {:ok, event}
     else
       {:error, %Event.ParseError{} = error} -> {:error, %DecodeError{cause: error}}
