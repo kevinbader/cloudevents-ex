@@ -11,9 +11,10 @@ defmodule Cloudevents.Format.V_1_0.Event do
     field(:id, String.t(), enforce: true)
     field(:subject, String.t())
     field(:time, String.t())
-    field(:extensions, %{optional(String.t()) => any})
     field(:datacontenttype, String.t())
+    field(:dataschema, String.t())
     field(:data, any)
+    field(:extensions, %{optional(String.t()) => any})
   end
 
   defmodule ParseError do
@@ -37,6 +38,7 @@ defmodule Cloudevents.Format.V_1_0.Event do
         "subject",
         "time",
         "datacontenttype",
+        "dataschema",
         "data"
       ])
 
@@ -47,6 +49,7 @@ defmodule Cloudevents.Format.V_1_0.Event do
          {:ok, subject} <- parse_subject(ctx_attrs),
          {:ok, time} <- parse_time(ctx_attrs),
          {:ok, datacontenttype} <- parse_datacontenttype(ctx_attrs),
+         {:ok, dataschema} <- parse_dataschema(ctx_attrs),
          {:ok, data} <- parse_data(event_data),
          {:ok, extensions} <- validated_extensions_attributes(extension_attrs) do
       datacontenttype =
@@ -60,9 +63,10 @@ defmodule Cloudevents.Format.V_1_0.Event do
         id: id,
         subject: subject,
         time: time,
-        extensions: extensions,
         datacontenttype: datacontenttype,
-        data: data
+        dataschema: dataschema,
+        data: data,
+        extensions: extensions
       }
 
       {:ok, event}
@@ -101,6 +105,13 @@ defmodule Cloudevents.Format.V_1_0.Event do
     do: {:error, "datacontenttype given but empty"}
 
   defp parse_datacontenttype(_), do: {:ok, nil}
+
+  defp parse_dataschema(%{"dataschema" => schema}) when byte_size(schema) > 0, do: {:ok, schema}
+
+  defp parse_dataschema(%{"dataschema" => ""}),
+    do: {:error, "dataschema given but empty"}
+
+  defp parse_dataschema(_), do: {:ok, nil}
 
   defp parse_data(""), do: {:error, "data field given but empty"}
   defp parse_data(data), do: {:ok, data}
