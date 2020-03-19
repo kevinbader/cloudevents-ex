@@ -3,15 +3,19 @@ defmodule Cloudevents.HttpBinding.V_1_0.Decoder do
   alias Cloudevents.Format
 
   @doc """
-  Turns an HTTP request into a Cloudevent.
+  Parses a HTTP request as one or more Cloudevents.
 
   See [content modes] for a description of the expected data layout.
 
   [content modes]: https://github.com/cloudevents/spec/blob/v1.0/http-protocol-binding.md#13-content-modes
   """
-  @spec from_http_message(Cloudevents.http_body(), Cloudevents.http_headers()) ::
+  @spec from_http_message(
+          Cloudevents.http_body(),
+          Cloudevents.http_headers(),
+          Cloudevents.options()
+        ) ::
           {:ok, [Cloudevents.cloudevent()]} | {:error, any}
-  def from_http_message(http_body, http_headers) do
+  def from_http_message(http_body, http_headers, _opts \\ []) do
     case content_type(http_headers) do
       "application/cloudevents" -> parse_structured(http_body, "json")
       "application/cloudevents+" <> event_format -> parse_structured(http_body, event_format)

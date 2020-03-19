@@ -1,7 +1,7 @@
-defmodule Cloudevents.Http.Binding_1_0.SerializeFormat_1_0_Test do
+defmodule Cloudevents.Kafka.Binding_1_0.SerializeFormat_1_0_Test do
   @moduledoc false
   use ExUnit.Case
-  doctest Cloudevents.HttpBinding.V_1_0.Decoder
+  doctest Cloudevents.KafkaBinding.V_1_0.Decoder
 
   alias Cloudevents.Format.V_1_0.Event
 
@@ -17,13 +17,13 @@ defmodule Cloudevents.Http.Binding_1_0.SerializeFormat_1_0_Test do
         }
       })
 
-    {body, headers} = Cloudevents.to_http_binary_message(event)
+    {body, headers} = Cloudevents.to_kafka_binary_message(event)
     assert Jason.decode(body) == {:ok, %{"this" => "is the content"}}
     assert {"content-type", "application/json"} in headers
-    assert {"ce-specversion", "1.0"} in headers
-    assert {"ce-type", "some-type"} in headers
-    assert {"ce-source", "some-source"} in headers
-    assert {"ce-id", "1"} in headers
+    assert {"ce_specversion", "1.0"} in headers
+    assert {"ce_type", "some-type"} in headers
+    assert {"ce_source", "some-source"} in headers
+    assert {"ce_id", "1"} in headers
   end
 
   test "structured mode, JSON encoding" do
@@ -38,7 +38,7 @@ defmodule Cloudevents.Http.Binding_1_0.SerializeFormat_1_0_Test do
         }
       })
 
-    {body, headers} = Cloudevents.to_http_structured_message(event, :json)
+    {body, headers} = Cloudevents.to_kafka_structured_message(event, :json)
     {:ok, event_from_body} = Cloudevents.from_json(body)
     assert event_from_body.specversion == "1.0"
     assert event_from_body.type == event.type
@@ -47,7 +47,4 @@ defmodule Cloudevents.Http.Binding_1_0.SerializeFormat_1_0_Test do
     assert event_from_body.data == event.data
     assert {"content-type", "application/cloudevents+json"} in headers
   end
-
-  # TODO: implement
-  # test "batch encoding"
 end
