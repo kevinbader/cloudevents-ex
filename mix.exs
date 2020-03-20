@@ -5,14 +5,18 @@ defmodule Cloudevents.MixProject do
   def project do
     [
       app: :cloudevents,
-      description: "Elixir SDK for CloudEvents",
+      description: description(),
       version: "0.1.0",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
       docs: docs(),
-      source_url: "https://github.com/kevinbader/cloudevents-ex"
+      source_url: "https://github.com/kevinbader/cloudevents-ex",
+      dialyzer: [
+        plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
+      ],
+      aliases: aliases()
     ]
   end
 
@@ -41,17 +45,40 @@ defmodule Cloudevents.MixProject do
     ]
   end
 
+  defp description do
+    """
+    Elixir SDK for CloudEvents, with bindings for JSON, AVRO, HTTP, Kafka.
+    """
+  end
+
   defp package do
     [
       name: "cloudevents",
+      maintainers: ["Kevin Bader"],
       licenses: ["Apache-2.0"],
-      links: %{"GitHub" => "https://github.com/kevinbader/cloudevents-ex"}
+      links: %{
+        "GitHub" => "https://github.com/kevinbader/cloudevents-ex"
+      }
     ]
   end
 
   defp docs do
     [
       main: "Cloudevents"
+    ]
+  end
+
+  defp aliases do
+    [
+      release: [
+        "check",
+        fn _ ->
+          version = Keyword.get(project(), :version)
+          Mix.shell().cmd("git tag v#{version}")
+          Mix.shell().cmd("git push --tags")
+        end,
+        "hex.publish"
+      ]
     ]
   end
 end

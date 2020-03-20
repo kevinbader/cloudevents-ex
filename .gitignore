@@ -22,6 +22,10 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 cloudevents-*.tar
 
+# Ignore Dialyzer plt files:
+/priv/plts/*.plt
+/priv/plts/*.plt.hash
+
 # VSCode Elixir extension
 /.elixir_ls/
 
