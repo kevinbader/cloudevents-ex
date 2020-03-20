@@ -13,9 +13,8 @@
 # limitations under the License.
 
 defmodule Cloudevents do
-  @moduledoc """
-  Cloudevents implementation for Elixir. This is the main module.
-  """
+  @moduledoc File.read!("README.md")
+
   alias Cloudevents.Format
   alias Cloudevents.HttpBinding
   alias Cloudevents.KafkaBinding
