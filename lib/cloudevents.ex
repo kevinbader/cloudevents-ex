@@ -17,8 +17,8 @@ defmodule Cloudevents do
   Cloudevents implementation for Elixir. This is the main module.
   """
   alias Cloudevents.Format
-  alias Cloudevents.KafkaBinding
   alias Cloudevents.HttpBinding
+  alias Cloudevents.KafkaBinding
 
   @typedoc "Cloudevent"
   @type t :: Format.V_1_0.Event.t() | Format.V_0_2.Event.t() | Format.V_0_1.Event.t()
@@ -157,6 +157,25 @@ defmodule Cloudevents do
   Serialize an event in HTTP binary content mode.
 
   Binary mode basically means: the payload is in the body and the metadata is in the header.
+
+      iex> event = Cloudevents.from_map!(%{
+      ...>   specversion: "1.0",
+      ...>   type: "some-type",
+      ...>   source: "some-source",
+      ...>   id: "1",
+      ...>   data: %{"foo" => "bar"}})
+      iex> {body, headers} = Cloudevents.to_http_binary_message(event)
+      {
+        "{\\"foo\\":\\"bar\\"}",
+        [
+          {"content-type", "application/json"},
+          {"ce-specversion", "1.0"},
+          {"ce-type", "some-type"},
+          {"ce-source", "some-source"},
+          {"ce-id", "1"}
+        ]
+      }
+
   """
   @spec to_http_binary_message(t()) :: {http_body, http_headers}
   defdelegate to_http_binary_message(event),
@@ -196,6 +215,25 @@ defmodule Cloudevents do
   Serialize an event in Kafka binary content mode.
 
   Binary mode basically means: the payload is in the body and the metadata is in the header.
+
+      iex> event = Cloudevents.from_map!(%{
+      ...>   specversion: "1.0",
+      ...>   type: "some-type",
+      ...>   source: "some-source",
+      ...>   id: "1",
+      ...>   data: %{"foo" => "bar"}})
+      iex> {body, headers} = Cloudevents.to_kafka_binary_message(event)
+      {
+        "{\\"foo\\":\\"bar\\"}",
+        [
+          {"content-type", "application/json"},
+          {"ce_specversion", "1.0"},
+          {"ce_type", "some-type"},
+          {"ce_source", "some-source"},
+          {"ce_id", "1"}
+        ]
+      }
+
   """
   @spec to_kafka_binary_message(t()) :: {kafka_body, kafka_headers}
   defdelegate to_kafka_binary_message(event),
@@ -208,6 +246,25 @@ defmodule Cloudevents do
   Serialize an event in Kafka structured content mode.
 
   Structured mode basically means: the full event - payload and metadata - is in the body.
+
+      iex> event = Cloudevents.from_map!(%{
+      ...>   specversion: "1.0",
+      ...>   type: "some-type",
+      ...>   source: "some-source",
+      ...>   id: "1",
+      ...>   data: %{"foo" => "bar"}})
+      iex> {body, headers} = Cloudevents.to_kafka_structured_message(event, :json)
+      {
+        "{\\"data\\":{\\"foo\\":\\"bar\\"},\\"datacontenttype\\":\\"application/json\\",\\"id\\":\\"1\\",\\"source\\":\\"some-source\\",\\"specversion\\":\\"1.0\\",\\"type\\":\\"some-type\\"}",
+        [{"content-type", "application/cloudevents+json"}]
+      }
+
+  ## Avro
+
+  By default, the Avro encoding contains the full event schema. If you're using the
+  Confluent Schema Registry, you can set `confluent_schema_registry_url` via
+  `options`. If set, instead the full schema only the schema ID is included in the
+  output.
   """
   @spec to_kafka_structured_message(t(), event_format :: :json | :avro, options) ::
           {kafka_body, kafka_headers}

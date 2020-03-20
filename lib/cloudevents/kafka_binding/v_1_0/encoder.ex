@@ -4,20 +4,35 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Encoder do
   @spec to_binary_content_mode(Cloudevents.t()) ::
           {Cloudevents.kafka_body(), Cloudevents.kafka_headers()}
   def to_binary_content_mode(event) do
-    body = Jason.encode!(event.data)
+    body =
+      case event.data do
+        nil -> ""
+        data -> Jason.encode!(data)
+      end
 
-    headers =
+    standard_headers =
       [
         {"content-type", "application/json"},
         {"ce_specversion", "1.0"},
         {"ce_type", event.type},
         {"ce_source", event.source},
-        {"ce_id", event.id},
-        {"ce_subject", event.subject},
-        {"ce_time", event.time}
-      ] ++ for {name, value} <- event.extensions, do: {"ce_#{name}", value}
+        {"ce_id", event.id}
+      ]
+      |> add_if_set(event, :subject, as: "ce_subject")
+      |> add_if_set(event, :time, as: "ce_time")
 
-    {body, headers}
+    extensions_as_headers = for {name, value} <- event.extensions, do: {"ce_#{name}", value}
+
+    {body, standard_headers ++ extensions_as_headers}
+  end
+
+  # ---
+
+  defp add_if_set(headers, event, key, as: header_name) do
+    case Map.get(event, key) do
+      nil -> headers
+      val -> headers ++ [{header_name, val}]
+    end
   end
 
   # ---

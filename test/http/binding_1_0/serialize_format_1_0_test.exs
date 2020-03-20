@@ -9,8 +9,8 @@ defmodule Cloudevents.Http.Binding_1_0.SerializeFormat_1_0_Test do
     {:ok, event} =
       Event.from_map(%{
         "specversion" => "1.0",
-        "type" => "some-type",
-        "source" => "some-source",
+        "type" => "a-type",
+        "source" => "a-source",
         "id" => "1",
         "data" => %{
           "this" => "is the content"
@@ -21,8 +21,21 @@ defmodule Cloudevents.Http.Binding_1_0.SerializeFormat_1_0_Test do
     assert Jason.decode(body) == {:ok, %{"this" => "is the content"}}
     assert {"content-type", "application/json"} in headers
     assert {"ce-specversion", "1.0"} in headers
-    assert {"ce-type", "some-type"} in headers
-    assert {"ce-source", "some-source"} in headers
+    assert {"ce-type", "a-type"} in headers
+    assert {"ce-source", "a-source"} in headers
+    assert {"ce-id", "1"} in headers
+  end
+
+  test "binary mode with no data" do
+    event =
+      Cloudevents.from_map!(%{specversion: "1.0", type: "a-type", source: "a-source", id: "1"})
+
+    {body, headers} = Cloudevents.to_http_binary_message(event)
+    assert body == ""
+    assert {"content-type", "application/json"} in headers
+    assert {"ce-specversion", "1.0"} in headers
+    assert {"ce-type", "a-type"} in headers
+    assert {"ce-source", "a-source"} in headers
     assert {"ce-id", "1"} in headers
   end
 
@@ -30,8 +43,8 @@ defmodule Cloudevents.Http.Binding_1_0.SerializeFormat_1_0_Test do
     {:ok, event} =
       Event.from_map(%{
         "specversion" => "1.0",
-        "type" => "some-type",
-        "source" => "some-source",
+        "type" => "a-type",
+        "source" => "a-source",
         "id" => "1",
         "data" => %{
           "this" => "is the content"

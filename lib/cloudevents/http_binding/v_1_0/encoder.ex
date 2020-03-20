@@ -4,20 +4,35 @@ defmodule Cloudevents.HttpBinding.V_1_0.Encoder do
   @spec to_binary_content_mode(Cloudevents.t()) ::
           {Cloudevents.http_body(), Cloudevents.http_headers()}
   def to_binary_content_mode(event) do
-    body = Jason.encode!(event.data)
+    body =
+      case event.data do
+        nil -> ""
+        data -> Jason.encode!(data)
+      end
 
-    headers =
+    standard_headers =
       [
         {"content-type", "application/json"},
         {"ce-specversion", "1.0"},
         {"ce-type", event.type},
         {"ce-source", event.source},
-        {"ce-id", event.id},
-        {"ce-subject", event.subject},
-        {"ce-time", event.time}
-      ] ++ for {name, value} <- event.extensions, do: {"ce-#{name}", value}
+        {"ce-id", event.id}
+      ]
+      |> add_if_set(event, :subject, as: "ce-subject")
+      |> add_if_set(event, :time, as: "ce-time")
 
-    {body, headers}
+    extensions_as_headers = for {name, value} <- event.extensions, do: {"ce-#{name}", value}
+
+    {body, standard_headers ++ extensions_as_headers}
+  end
+
+  # ---
+
+  defp add_if_set(headers, event, key, as: header_name) do
+    case Map.get(event, key) do
+      nil -> headers
+      val -> headers ++ [{header_name, val}]
+    end
   end
 
   # ---
