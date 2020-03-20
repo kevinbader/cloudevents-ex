@@ -1,0 +1,33 @@
+language: elixir
+
+notifications:
+  email: false
+
+elixir:
+  - 1.10.2
+
+otp_release:
+  - 22.0
+
+matrix:
+  include:
+    - elixir: "1.6"
+      otp_release: "19.0"
+    - elixir: "1.8"
+      otp_release: "21.1"
+    - elixir: "1.9"
+      otp_release: "22.0"
+      env:
+        - DIALYZER=true
+        - CREDO=true
+
+script:
+  - mix test
+  - if [ "$DIALYZER" ]; then mix dialyzer --no-compile --ignore-exit-status; fi
+  - if [ "$CREDO" ]; then mix credo; fi
+
+cache:
+  directories:
+    - priv/plts
+    - _build
+    - deps
