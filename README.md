@@ -1,6 +1,14 @@
 # Cloudevents
 
-An Elixir library for handling [CloudEvents](https://cloudevents.io/) (make sure to check out the [spec on GitHub](https://github.com/cloudevents/spec)).
+<span id="badges">
+
+[![Hex pm](https://img.shields.io/hexpm/v/cloudevents.svg?style=flat-square)](https://hex.pm/packages/cloudevents)
+[![Hex Docs](https://img.shields.io/badge/api-docs-blue.svg?style=flat-square)](https://hexdocs.pm/cloudevents)
+[![Apache 2.0 license](https://img.shields.io/hexpm/l/cloudevents.svg?style=flat-square)](./LICENSE)
+
+</span>
+
+A batteries-included approach to consuming and producing [CloudEvents](https://cloudevents.io/). If you want to learn more about the specification itself, make sure to check out the [official spec on GitHub](https://github.com/cloudevents/spec).
 
 ## Status
 
