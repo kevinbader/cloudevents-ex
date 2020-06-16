@@ -37,14 +37,14 @@ defmodule Cloudevents.HttpBinding.V_1_0.Encoder do
 
   # ---
 
-  @spec to_structured_content_mode(Cloudevents.t(), :json | :avro, Cloudevents.options()) ::
-          {Cloudevents.http_body(), Cloudevents.http_headers()}
-  def to_structured_content_mode(event, event_format, opts)
+  @spec to_structured_content_mode(Cloudevents.t(), :json | :avro_binary) ::
+          {:ok, {Cloudevents.http_body(), Cloudevents.http_headers()}} | {:error, term}
+  def to_structured_content_mode(event, event_format)
 
-  def to_structured_content_mode(event, :json, _opts) do
+  def to_structured_content_mode(event, :json) do
     body = Cloudevents.to_json(event)
     headers = [{"content-type", "application/cloudevents+json"}]
-    {body, headers}
+    {:ok, {body, headers}}
   end
 
   # ---

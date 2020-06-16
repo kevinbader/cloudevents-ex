@@ -23,7 +23,7 @@ defmodule Cloudevents.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: []
+      # applications: []
     ]
   end
 
@@ -31,17 +31,19 @@ defmodule Cloudevents.MixProject do
   defp deps do
     [
       # Docs:
-      {:ex_doc, ">= 0.19.0", only: :dev},
+      {:ex_doc, ">= 0.22.1", only: :dev},
       # Linting:
-      {:credo, ">= 1.1.3", only: [:dev, :test]},
+      {:credo, ">= 1.4.0", only: [:dev, :test]},
       # Static type checks:
-      {:dialyxir, ">= 0.5.0", only: :dev},
+      {:dialyxir, ">= 1.0.0", only: :dev},
       # Run all static code checks via `mix check`:
       {:ex_check, ">= 0.11.0", only: :dev},
       # A library for defining structs with a type without writing boilerplate code:
-      {:typed_struct, "~> 0.1.4"},
-      # JSON parser that's supposedly faster than poison:
-      {:jason, "~> 1.1.2"}
+      {:typed_struct, "~> 0.2.0"},
+      # JSON parser:
+      {:jason, "~> 1.2"},
+      # Avro encoding/decoding:
+      {:avrora, "~> 0.11"}
     ]
   end
 
@@ -64,7 +66,17 @@ defmodule Cloudevents.MixProject do
 
   defp docs do
     [
-      main: "Cloudevents"
+      main: "Cloudevents",
+      before_closing_body_tag: fn _format ->
+        """
+        <script type="text/javascript">
+          ["badges", "status"].forEach(function(id) {
+            var element = document.getElementById(id);
+            element.parentNode.removeChild(element);
+          });
+        </script>
+        """
+      end
     ]
   end
 

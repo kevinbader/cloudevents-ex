@@ -51,7 +51,7 @@ defmodule Cloudevents.Http.Binding_1_0.SerializeFormat_1_0_Test do
         }
       })
 
-    {body, headers} = Cloudevents.to_http_structured_message(event, :json)
+    {:ok, {body, headers}} = Cloudevents.to_http_structured_message(event, :json)
     {:ok, event_from_body} = Cloudevents.from_json(body)
     assert event_from_body.specversion == "1.0"
     assert event_from_body.type == event.type

@@ -11,11 +11,10 @@ defmodule Cloudevents.HttpBinding.Decoder do
   """
   @spec from_http_message(
           Cloudevents.http_body(),
-          Cloudevents.http_headers(),
-          Cloudevents.options()
+          Cloudevents.http_headers()
         ) :: {:ok, [Cloudevents.t()]} | {:error, any}
-  def from_http_message(http_body, http_headers, opts) do
-    with {:error, _} = error <- V_1_0.Decoder.from_http_message(http_body, http_headers, opts) do
+  def from_http_message(http_body, http_headers) do
+    with {:error, _} = error <- V_1_0.Decoder.from_http_message(http_body, http_headers) do
       error
     else
       {:ok, events} -> {:ok, events}

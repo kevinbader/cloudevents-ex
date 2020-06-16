@@ -2,6 +2,7 @@ defmodule Cloudevents.Format.V_1_0.Event do
   @desc "Cloudevents format v1.0."
   @moduledoc @desc
   use TypedStruct
+  alias Cloudevents.Format.ParseError
 
   @typedoc @desc
   typedstruct do
@@ -17,12 +18,7 @@ defmodule Cloudevents.Format.V_1_0.Event do
     field(:extensions, %{optional(String.t()) => any})
   end
 
-  defmodule ParseError do
-    @moduledoc "What was given does not look like a proper Cloudevent."
-    defexception [:message]
-  end
-
-  def from_map(map) do
+  def from_map(map) when is_map(map) do
     # Cloudevents carry the actual payload in the "data" field. The other fields are
     # called "context attributes" (abbreviated `ctx_attrs` here). Extensions are all
     # context attributes that are not well-known, i.e., defined in the spec. They are

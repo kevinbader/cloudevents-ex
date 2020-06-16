@@ -1,0 +1,33 @@
+{
+  "namespace": "io.cloudevents",
+  "type": "record",
+  "name": "CloudEvent",
+  "version": "1.0",
+  "doc": "Avro Event Format for CloudEvents",
+  "fields": [
+    {
+      "name": "specversion",
+      "type": "string"
+    },
+    {
+      "name": "type",
+      "type": "string"
+    },
+    {
+      "name": "source",
+      "type": "string"
+    },
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "data",
+      "type": {
+        "type": "map",
+        "values": "string"
+      }
+    }
+  ]
+}
+

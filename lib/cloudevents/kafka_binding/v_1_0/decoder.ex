@@ -11,11 +11,10 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
   """
   @spec from_kafka_message(
           Cloudevents.kafka_body(),
-          Cloudevents.kafka_headers(),
-          Cloudevents.options()
+          Cloudevents.kafka_headers()
         ) ::
-          {:ok, [Cloudevents.cloudevent()]} | {:error, any}
-  def from_kafka_message(kafka_body, kafka_headers, _opts \\ []) do
+          {:ok, Cloudevents.t()} | {:error, any}
+  def from_kafka_message(kafka_body, kafka_headers) do
     case content_type(kafka_headers) do
       "application/cloudevents" -> parse_structured(kafka_body, "json")
       "application/cloudevents+" <> event_format -> parse_structured(kafka_body, event_format)
@@ -36,10 +35,6 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
     ctx_attrs
     |> Map.merge(%{"datacontenttype" => event_format, "data" => data})
     |> Format.Decoder.Map.decode()
-    |> case do
-      {:ok, event} -> {:ok, [event]}
-      error_tuple -> error_tuple
-    end
   end
 
   # ---
@@ -50,10 +45,6 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
     case event_format do
       "json" -> Format.Decoder.JSON.decode(kafka_body)
       other_encoding -> {:error, {:no_decoder_for_event_format, other_encoding}}
-    end
-    |> case do
-      {:ok, event} -> {:ok, [event]}
-      error_tuple -> error_tuple
     end
   end
 

@@ -1,5 +1,3 @@
-# Cloudevents
-
 <span id="badges">
 
 [![Hex pm](https://img.shields.io/hexpm/v/cloudevents.svg?style=flat-square)](https://hex.pm/packages/cloudevents)
@@ -8,7 +6,15 @@
 
 </span>
 
-A batteries-included approach to consuming and producing [CloudEvents](https://cloudevents.io/). If you want to learn more about the specification itself, make sure to check out the [official spec on GitHub](https://github.com/cloudevents/spec).
+Cloudevents is an Elixir [SDK] for consuming and producing [CloudEvents] with support for various transport protocols and codecs. If you want to learn more about the specification itself, make sure to check out the [official spec on GitHub].
+
+Cloudevents is released under the Apache License 2.0 - see the [LICENSE](LICENSE) file.
+
+[CloudEvents]: https://cloudevents.io/
+[SDK]: https://github.com/cloudevents/spec/blob/master/SDK.md
+[official spec on GitHub]: https://github.com/cloudevents/spec
+
+<div id="status">
 
 ## Status
 
@@ -29,7 +35,9 @@ Work in progress.
 | NATS Protocol Binding        | out of scope for now (PR welcome) |
 | Web hook                     | out of scope for now (PR welcome) |
 
-## Installation
+</div>
+
+## Getting started
 
 Add `cloudevents` to your list of dependencies in `mix.exs`:
 
@@ -39,10 +47,22 @@ def deps do
 end
 ```
 
-## Basic Usage
+Use `Cloudevents.from_map/1` to create your first Cloudevent and see its JSON representation using `Cloudevents.to_json/1`.
 
-Check out the [documentation](https://hexdocs.pm/cloudevents).
+If you're dealing with HTTP requests, `Cloudevents.from_http_message/2`, `Cloudevents.to_http_binary_message/1` and `Cloudevents.to_http_structured_message/2` are your friends.
 
-## License
+If you need Avro, you need to add `Cloudevents` to your supervisor:
 
-Cloudevents is released under the Apache License 2.0 - see the [LICENSE](LICENSE) file.
+```elixir
+children = [
+  Cloudevents
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)
+```
+
+Or start `Cloudevents` manually:
+
+```elixir
+{:ok, pid} = Cloudevents.start_link()
+```

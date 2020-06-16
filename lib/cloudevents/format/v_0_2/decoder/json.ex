@@ -1,42 +1,40 @@
-defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
+defmodule Cloudevents.Format.V_0_2.Decoder.JSON do
   @moduledoc false
   @behaviour Cloudevents.Format.Decoder.JSON
 
   alias Cloudevents.Format.Decoder.DecodeError
   alias Cloudevents.Format.ParseError
-  alias Cloudevents.Format.V_1_0.Event
+  alias Cloudevents.Format.V_0_2.Event
 
   @doc """
-  Turns a JSON string into a Cloudevent 1.0 struct.
+  Turns a JSON string into a Cloudevent 0.2 struct.
 
   ## Examples
 
   ### Successful case
 
       iex> json = ~S({
-      ...>   "specversion": "1.0",
+      ...>   "specversion": "0.2",
       ...>   "type": "com.github.pull.create",
       ...>   "source": "https://github.com/cloudevents/spec/pull",
-      ...>   "subject": "123",
       ...>   "id": "A234-1234-1234",
       ...>   "time": "2018-04-05T17:31:00Z",
       ...>   "comexampleextension1": "value",
       ...>   "comexampleothervalue": 5,
-      ...>   "datacontenttype": "text/xml",
+      ...>   "contenttype": "text/xml",
       ...>   "data": "<much wow=\\"xml\\"/>"
       ...> })
-      iex> {:ok, event} = Cloudevents.Format.V_1_0.Decoder.JSON.decode(json)
-      iex> with %Cloudevents.Format.V_1_0.Event{
+      iex> {:ok, event} = Cloudevents.Format.V_0_2.Decoder.JSON.decode(json)
+      iex> with %Cloudevents.Format.V_0_2.Event{
       ...>   type: "com.github.pull.create",
       ...>   source: "https://github.com/cloudevents/spec/pull",
       ...>   id: "A234-1234-1234",
-      ...>   subject: "123",
       ...>   time: "2018-04-05T17:31:00Z",
       ...>   extensions: %{
       ...>     "comexampleextension1" => "value",
       ...>     "comexampleothervalue" => 5
       ...>   },
-      ...>   datacontenttype: "text/xml",
+      ...>   contenttype: "text/xml",
       ...>   data: ~S(<much wow="xml"/>)
       ...> } <- event, do: :passed
       :passed
@@ -44,30 +42,30 @@ defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
   ### Not a JSON at all
 
       iex> not_a_json = "..."
-      iex> Cloudevents.Format.V_1_0.Decoder.JSON.decode(not_a_json)
+      iex> Cloudevents.Format.V_0_2.Decoder.JSON.decode(not_a_json)
       {:error, %Cloudevents.Format.Decoder.DecodeError{
                 cause: %Jason.DecodeError{data: "...", position: 0, token: nil}}}
 
   ### Missing required fields
 
       iex> json = ~S({
-      ...>   "specversion": "1.0",
+      ...>   "specversion": "0.2",
       ...>   "type": "com.github.pull.create"
       ...> })
-      iex> Cloudevents.Format.V_1_0.Decoder.JSON.decode(json)
+      iex> Cloudevents.Format.V_0_2.Decoder.JSON.decode(json)
       {:error, %Cloudevents.Format.Decoder.DecodeError{
                 cause: %Cloudevents.Format.ParseError{message: "missing source"}}}
 
   ### Invalid extension attribute name
 
       iex> json = ~S({
-      ...>   "specversion": "1.0",
+      ...>   "specversion": "0.2",
       ...>   "type": "com.github.pull.create",
       ...>   "source": "https://github.com/cloudevents/spec/pull",
       ...>   "id": "A234-1234-1234",
       ...>   "an extension attribute that contains spaces": "is not allowed"
       ...> })
-      iex> Cloudevents.Format.V_1_0.Decoder.JSON.decode(json)
+      iex> Cloudevents.Format.V_0_2.Decoder.JSON.decode(json)
       {:error, %Cloudevents.Format.Decoder.DecodeError{
                 cause: %Cloudevents.Format.ParseError{message: "invalid extension attributes: \\"an extension attribute that contains spaces\\""}}}
 
@@ -82,8 +80,8 @@ defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
         if Map.has_key?(orig_map, "data_base64") do
           event.data
         else
-          # If datacontenttype is application/json and data is a string, data could be an encoded JSON structure :/
-          decode_json_if_possible(event.datacontenttype, event.data)
+          # If contenttype is application/json and data is a string, data could be an encoded JSON structure :/
+          decode_json_if_possible(event.contenttype, event.data)
         end
 
       event = Map.put(event, :data, data)
@@ -110,9 +108,9 @@ defmodule Cloudevents.Format.V_1_0.Decoder.JSON do
 
   # ---
 
-  defp decode_json_if_possible(datacontenttype, data) when byte_size(data) > 0 do
+  defp decode_json_if_possible(contenttype, data) when byte_size(data) > 0 do
     # This is likely good enough but perhaps we should do proper mime type handling here..
-    case datacontenttype do
+    case contenttype do
       "application/json" <> _ ->
         case Jason.decode(data) do
           {:ok, decoded} -> decoded

@@ -11,11 +11,10 @@ defmodule Cloudevents.HttpBinding.V_1_0.Decoder do
   """
   @spec from_http_message(
           Cloudevents.http_body(),
-          Cloudevents.http_headers(),
-          Cloudevents.options()
+          Cloudevents.http_headers()
         ) ::
-          {:ok, [Cloudevents.cloudevent()]} | {:error, any}
-  def from_http_message(http_body, http_headers, _opts \\ []) do
+          {:ok, [Cloudevents.t()]} | {:error, any}
+  def from_http_message(http_body, http_headers) do
     case content_type(http_headers) do
       "application/cloudevents" -> parse_structured(http_body, "json")
       "application/cloudevents+" <> event_format -> parse_structured(http_body, event_format)

@@ -1,0 +1,14 @@
+{
+  "namespace": "foo",
+  "type": "record",
+  "name": "Bar",
+  "version": "1.0",
+  "fields": [
+    {
+      "name": "baz",
+      "type": "string"
+    }
+  ]
+}
+
+

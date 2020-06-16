@@ -13,10 +13,12 @@
 # limitations under the License.
 
 defmodule Cloudevents do
+  @external_resource "README.md"
   @moduledoc File.read!("README.md")
 
   alias Cloudevents.Format
   alias Cloudevents.HttpBinding
+
   alias Cloudevents.KafkaBinding
 
   @typedoc "Cloudevent"
@@ -26,10 +28,23 @@ defmodule Cloudevents do
   @type options :: [option]
 
   @typedoc "Configuration parameter"
-  @type option :: {:confluent_schema_registry_url, confluent_schema_registry_url}
+  @type option ::
+          {:confluent_schema_registry_url, confluent_schema_registry_url}
+          | {:avro_schemas_path, avro_schemas_path}
+          | {:avro_cache_ttl, avro_cache_ttl}
+          | {:avro_event_schema_name, avro_event_schema_name}
 
   @typedoc "Confluent Schema Registry URL for resolving Avro schemas by ID"
   @type confluent_schema_registry_url :: String.t()
+
+  @typedoc "Base path for locally stored schema files (default `./priv/schemas`)"
+  @type avro_schemas_path :: String.t()
+
+  @typedoc "Time in ms to cache Avro schemas in memory (default `300_000`)"
+  @type avro_cache_ttl :: non_neg_integer()
+
+  @typedoc "Name of the Avro-schema used to encode events"
+  @type avro_event_schema_name :: String.t()
 
   @typedoc "HTTP body"
   @type http_body :: binary()
@@ -42,6 +57,53 @@ defmodule Cloudevents do
 
   @typedoc "Kafka headers"
   @type kafka_headers :: [{String.t(), String.t()}]
+
+  use Supervisor
+
+  @doc """
+  Runs the `cloudevents` supervisor; needed for Avro support and its schema caching.
+  """
+  @spec start_link(options) :: {:ok, pid} | {:error, any}
+  def start_link(opts) do
+    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @doc """
+  Stops the `cloudevents` supervisor.
+  """
+  def stop do
+    Supervisor.stop(__MODULE__)
+  end
+
+  @impl Supervisor
+  def init(opts) do
+    # e.g. http://localhost:8081
+    registry_url = Keyword.get(opts, :confluent_schema_registry_url)
+    Application.put_env(:avrora, :registry_url, registry_url, persistent: true)
+
+    schemas_path = Keyword.get(opts, :avro_schemas_path, Path.expand("./priv/schemas"))
+    Application.put_env(:avrora, :schemas_path, schemas_path, persistent: true)
+
+    names_cache_ttl = Keyword.get(opts, :avro_cache_ttl, :timer.minutes(5))
+    Application.put_env(:avrora, :names_cache_ttl, names_cache_ttl, persistent: true)
+
+    children = [
+      Avrora,
+      {Cloudevents.Config, opts}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_all)
+  end
+
+  def handle_call(:avro_event_schema_name, _from, state) do
+    reply =
+      case Keyword.get(state, :avro_event_schema_name) do
+        nil -> {:error, :unset}
+        schema -> {:ok, schema}
+      end
+
+    {:ok, reply}
+  end
 
   @doc """
   Converts an Elixir map into a Cloudevent.
@@ -80,7 +142,7 @@ defmodule Cloudevents do
 
   """
   @spec from_map(map :: %{required(atom) => any} | %{required(String.t()) => any}) ::
-          {:ok, t()} | {:error, %Cloudevents.Format.V_1_0.Event.ParseError{}}
+          {:ok, t()} | {:error, %Cloudevents.Format.ParseError{}}
   defdelegate from_map(map), to: Format.Decoder.Map, as: :decode
 
   @doc "Converts an Elixir map into a Cloudevent and panics otherwise."
@@ -121,16 +183,30 @@ defmodule Cloudevents do
 
   # ---
 
-  @doc "Encodes a Cloudevents using JSON format."
+  @doc "Encodes a Cloudevent using JSON format."
   @spec to_json(t()) :: binary()
   defdelegate to_json(cloudevent), to: Format.Encoder.JSON, as: :encode
 
   # ---
 
-  # @doc "Decodes an Avro-encoded Cloudevent."
-  # @spec from_avro(avro :: binary(), confluent_schema_registry_url) ::
-  #         {:ok, t()} | {:error, %Cloudevents.Format.Decoder.DecodeError{}}
-  # defdelegate from_avro(avro, confluent_schema_registry_url), to: Format.Decoder.Avro, as: :decode
+  @doc """
+  Decodes an Avro-encoded Cloudevent (requires `Cloudevents.start_link/1`).
+
+  TODO: tests/examples
+  """
+  @spec from_avro(avro :: binary()) ::
+          {:ok, t()} | {:error, %Cloudevents.Format.Decoder.DecodeError{}}
+  defdelegate from_avro(avro), to: Format.Decoder.Avro, as: :decode
+
+  # ---
+
+  @doc """
+  Encodes a Cloudevent using Avro binary encoding (requires `Cloudevents.start_link/1`).
+
+  TODO: tests/examples
+  """
+  @spec to_avro(t()) :: {:ok, binary()} | {:error, term()}
+  defdelegate to_avro(avro), to: Format.Encoder.Avro, as: :encode
 
   # ---
 
@@ -146,9 +222,9 @@ defmodule Cloudevents do
         {:error, error} -> "failed to parse HTTP request: #{inspect(error)}"
       end
   """
-  @spec from_http_message(http_body, http_headers, options) ::
+  @spec from_http_message(http_body, http_headers) ::
           {:ok, [t()]} | {:error, any}
-  defdelegate from_http_message(http_body, http_headers, options \\ []), to: HttpBinding.Decoder
+  defdelegate from_http_message(http_body, http_headers), to: HttpBinding.Decoder
 
   # ---
 
@@ -188,9 +264,9 @@ defmodule Cloudevents do
 
   Structured mode basically means: the full event - payload and metadata - is in the body.
   """
-  @spec to_http_structured_message(t(), event_format :: :json | :avro, options) ::
-          {http_body, http_headers}
-  defdelegate to_http_structured_message(event, event_format, options \\ []),
+  @spec to_http_structured_message(t(), event_format :: :json | :avro_binary) ::
+          {:ok, {http_body, http_headers}}
+  defdelegate to_http_structured_message(event, event_format),
     to: HttpBinding.V_1_0.Encoder,
     as: :to_structured_content_mode
 
@@ -203,9 +279,9 @@ defmodule Cloudevents do
   # ---
 
   @doc "Parses a Kafka message as a Cloudevent."
-  @spec from_kafka_message(kafka_body, kafka_headers, options) ::
+  @spec from_kafka_message(kafka_body, kafka_headers) ::
           {:ok, t()} | {:error, any}
-  defdelegate from_kafka_message(kafka_body, kafka_headers, options \\ []),
+  defdelegate from_kafka_message(kafka_body, kafka_headers),
     to: KafkaBinding.Decoder
 
   # ---
@@ -252,22 +328,18 @@ defmodule Cloudevents do
       ...>   source: "some-source",
       ...>   id: "1",
       ...>   data: %{"foo" => "bar"}})
-      iex> {body, headers} = Cloudevents.to_kafka_structured_message(event, :json)
+      iex> {:ok, {body, headers}} = Cloudevents.to_kafka_structured_message(event, :json)
+      iex> {body, headers}
       {
         "{\\"data\\":{\\"foo\\":\\"bar\\"},\\"datacontenttype\\":\\"application/json\\",\\"id\\":\\"1\\",\\"source\\":\\"some-source\\",\\"specversion\\":\\"1.0\\",\\"type\\":\\"some-type\\"}",
         [{"content-type", "application/cloudevents+json"}]
       }
 
-  ## Avro
-
-  By default, the Avro encoding contains the full event schema. If you're using the
-  Confluent Schema Registry, you can set `confluent_schema_registry_url` via
-  `options`. If set, instead the full schema only the schema ID is included in the
-  output.
+  Note that Avro encoding requires a preceding call to `Cloudevents.start_link/1`.
   """
-  @spec to_kafka_structured_message(t(), event_format :: :json | :avro, options) ::
-          {kafka_body, kafka_headers}
-  defdelegate to_kafka_structured_message(event, event_format, options \\ []),
+  @spec to_kafka_structured_message(t(), event_format :: :json | :avro_binary) ::
+          {:ok, {kafka_body, kafka_headers}} | {:error, term}
+  defdelegate to_kafka_structured_message(event, event_format),
     to: KafkaBinding.V_1_0.Encoder,
     as: :to_structured_content_mode
 end

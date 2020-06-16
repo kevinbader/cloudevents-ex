@@ -14,7 +14,7 @@ defmodule Cloudevents.Kafka.Binding_1_0.DeserializeFormat_1_0_Test do
       "ce_id" => "1"
     }
 
-    assert {:ok, [event]} = Cloudevents.from_kafka_message(body, headers)
+    assert {:ok, event} = Cloudevents.from_kafka_message(body, headers)
     assert event.type == "some-type"
     assert event.source == "some-source"
     assert event.id == "1"
@@ -36,7 +36,7 @@ defmodule Cloudevents.Kafka.Binding_1_0.DeserializeFormat_1_0_Test do
       "content-type" => "application/cloudevents"
     }
 
-    assert {:ok, [event]} = Cloudevents.from_kafka_message(body, headers)
+    assert {:ok, event} = Cloudevents.from_kafka_message(body, headers)
     assert event.type == "some-type"
     assert event.source == "some-source"
     assert event.id == "1"
@@ -59,7 +59,7 @@ defmodule Cloudevents.Kafka.Binding_1_0.DeserializeFormat_1_0_Test do
       "content-type" => "application/cloudevents+json"
     }
 
-    assert {:ok, [event]} = Cloudevents.from_kafka_message(body, headers)
+    assert {:ok, event} = Cloudevents.from_kafka_message(body, headers)
     assert event.type == "some-type"
     assert event.source == "some-source"
     assert event.id == "1"

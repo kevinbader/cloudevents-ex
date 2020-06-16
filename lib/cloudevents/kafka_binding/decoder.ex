@@ -11,15 +11,14 @@ defmodule Cloudevents.KafkaBinding.Decoder do
   """
   @spec from_kafka_message(
           Cloudevents.kafka_body(),
-          Cloudevents.kafka_headers(),
-          Cloudevents.options()
+          Cloudevents.kafka_headers()
         ) ::
-          Cloudevents.cloudevent_result()
-  def from_kafka_message(kafka_body, kafka_headers, opts) do
-    with {:error, _} = error <- V_1_0.Decoder.from_kafka_message(kafka_body, kafka_headers, opts) do
+          {:ok, Cloudevents.t()} | {:error, any}
+  def from_kafka_message(kafka_body, kafka_headers) do
+    with {:error, _} = error <- V_1_0.Decoder.from_kafka_message(kafka_body, kafka_headers) do
       error
     else
-      {:ok, events} -> {:ok, events}
+      {:ok, event} -> {:ok, event}
     end
   end
 end

@@ -1,4 +1,4 @@
-defimpl Cloudevents.Format.Encoder.JSON, for: Cloudevents.Format.V_1_0.Event do
+defimpl Cloudevents.Format.Encoder.JSON, for: Cloudevents.Format.V_0_2.Event do
   @moduledoc false
 
   def encode(event) do
