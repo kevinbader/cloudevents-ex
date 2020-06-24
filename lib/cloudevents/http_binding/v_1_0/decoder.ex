@@ -34,13 +34,29 @@ defmodule Cloudevents.HttpBinding.V_1_0.Decoder do
     ctx_attrs = for {"ce-" <> key, val} <- http_headers, into: %{}, do: {key, val}
 
     ctx_attrs
-    |> Map.merge(%{"datacontenttype" => event_format, "data" => data})
+    |> Map.merge(%{
+      "datacontenttype" => event_format,
+      "data" => data |> try_decoding(event_format)
+    })
     |> Format.Decoder.Map.decode()
     |> case do
       {:ok, event} -> {:ok, [event]}
       error_tuple -> error_tuple
     end
   end
+
+  # ---
+
+  defp try_decoding(data, mimetype)
+
+  defp try_decoding(data, "application/json" <> _) do
+    case Jason.decode(data) do
+      {:ok, decoded} -> decoded
+      _ -> data
+    end
+  end
+
+  defp try_decoding(data, _), do: data
 
   # ---
 

@@ -25,22 +25,32 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
 
   # ---
 
-  # In the binary content mode, the value of the event data is placed into the Kafka
-  # message body as-is, with the datacontenttype attribute value declaring its media
-  # type in the Kafka Content-Type header; all other event attributes are mapped to
-  # Kafka headers.
   defp parse_binary(kafka_headers, data, event_format) do
     ctx_attrs = for {"ce_" <> key, val} <- kafka_headers, into: %{}, do: {key, val}
 
     ctx_attrs
-    |> Map.merge(%{"datacontenttype" => event_format, "data" => data})
+    |> Map.merge(%{
+      "datacontenttype" => event_format,
+      "data" => data |> try_decoding(event_format)
+    })
     |> Format.Decoder.Map.decode()
   end
 
   # ---
 
-  # In the structured content mode, event metadata attributes and event data are placed
-  # into the Kafka message body using an event format.
+  defp try_decoding(data, mimetype)
+
+  defp try_decoding(data, "application/json" <> _) do
+    case Jason.decode(data) do
+      {:ok, decoded} -> decoded
+      _ -> data
+    end
+  end
+
+  defp try_decoding(data, _), do: data
+
+  # ---
+
   defp parse_structured(kafka_body, event_format) do
     case event_format do
       "json" -> Format.Decoder.JSON.decode(kafka_body)

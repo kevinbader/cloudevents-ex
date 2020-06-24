@@ -1,6 +1,10 @@
 defmodule Cloudevents.KafkaBinding.V_1_0.Encoder do
   @moduledoc false
 
+  # In the binary content mode, the value of the event data is placed into the Kafka
+  # message body as-is, with the datacontenttype attribute value declaring its media
+  # type in the Kafka Content-Type header; all other event attributes are mapped to
+  # Kafka headers.
   @spec to_binary_content_mode(Cloudevents.t()) ::
           {Cloudevents.kafka_body(), Cloudevents.kafka_headers()}
   def to_binary_content_mode(event) do
@@ -37,6 +41,8 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Encoder do
 
   # ---
 
+  # In the structured content mode, event metadata attributes and event data are placed
+  # into the Kafka message body using an event format.
   @spec to_structured_content_mode(Cloudevents.t(), :json | :avro_binary) ::
           {:ok, {Cloudevents.kafka_body(), Cloudevents.kafka_headers()}} | {:error, term}
   def to_structured_content_mode(event, event_format)
