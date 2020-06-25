@@ -15,10 +15,13 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
         ) ::
           {:ok, Cloudevents.t()} | {:error, any}
   def from_kafka_message(kafka_body, kafka_headers) do
+    IO.inspect(content_type(kafka_headers), label: "content_type")
+
     case content_type(kafka_headers) do
       "application/cloudevents" -> parse_structured(kafka_body, "json")
       "application/cloudevents+" <> event_format -> parse_structured(kafka_body, event_format)
       "application/cloudevents-batch" <> _ -> {:error, :batch_mode_not_available_as_per_spec}
+      nil -> parse_structured(kafka_body, "json")
       event_format -> parse_binary(kafka_headers, kafka_body, event_format)
     end
   end
@@ -41,6 +44,10 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
 
   # In the structured content mode, event metadata attributes and event data are placed
   # into the Kafka message body using an event format.
+  defp parse_structured(<<0::8, _id::32, _body::binary>> = kafka_body, _event_format) do
+    IO.puts("IMPLEMENT ME")
+  end
+
   defp parse_structured(kafka_body, event_format) do
     case event_format do
       "json" -> Format.Decoder.JSON.decode(kafka_body)
@@ -49,6 +56,8 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
   end
 
   # ---
+
+  defp content_type([]), do: nil
 
   defp content_type(headers) do
     for({"content-type", content_type} <- headers, do: content_type)
