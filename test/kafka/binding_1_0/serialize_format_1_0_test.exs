@@ -80,7 +80,7 @@ defmodule Cloudevents.Kafka.Binding_1_0.SerializeFormat_1_0_Test do
       )
 
     {:ok, {body, headers}} = Cloudevents.to_kafka_structured_message(event, :avro_binary)
-    {:ok, event_from_body} = Cloudevents.from_avro(body)
+    {:ok, event_from_body} = Cloudevents.from_avro(body, %{})
 
     Cloudevents.stop()
 

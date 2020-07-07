@@ -22,6 +22,26 @@ defmodule Cloudevents.Http.Binding_1_0.DeserializeFormat_1_0_Test do
     assert event.data == "this is the content"
   end
 
+  test "A JSON payload in the body is decoded" do
+    body = """
+    {
+      "foo": "bar"
+    }
+    """
+
+    headers = %{
+      "content-type" => "application/json",
+      "ce-specversion" => "1.0",
+      "ce-type" => "com.example.test.simple",
+      "ce-source" => "rig-test",
+      "ce-id" => "069711bf-3946-4661-984f-c667657b8d85"
+    }
+
+    assert {:ok, [event]} = Cloudevents.from_http_message(body, headers)
+    assert event.datacontenttype == "application/json"
+    assert event.data == %{"foo" => "bar"}
+  end
+
   test "With Content-Type of cloudevent, JSON encoding is the default" do
     body = """
     {

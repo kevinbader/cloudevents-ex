@@ -15,10 +15,7 @@ defmodule Cloudevents.KafkaBinding.Decoder do
         ) ::
           {:ok, Cloudevents.t()} | {:error, any}
   def from_kafka_message(kafka_body, kafka_headers) do
-    IO.puts("HELLO FROM LIB!")
-
     with {:error, _} = error <- V_1_0.Decoder.from_kafka_message(kafka_body, kafka_headers) do
-      IO.inspect(error, label: "error")
       error
     else
       {:ok, event} -> {:ok, event}

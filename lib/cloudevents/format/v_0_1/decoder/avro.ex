@@ -1,10 +1,10 @@
-defmodule Cloudevents.Format.V_0_2.Decoder.Avro do
+defmodule Cloudevents.Format.V_0_1.Decoder.Avro do
   @moduledoc false
   @behaviour Cloudevents.Format.Decoder.Avro
 
   alias Cloudevents.Format.Decoder.DecodeError
   alias Cloudevents.Format.ParseError
-  alias Cloudevents.Format.V_0_2.Event
+  alias Cloudevents.Format.V_0_1.Event
 
   @doc "Decodes an Avro binary into a Cloudevent v0.2 struct."
   def decode(avro, ctx_attrs \\ %{}) do

@@ -194,9 +194,9 @@ defmodule Cloudevents do
 
   TODO: tests/examples
   """
-  @spec from_avro(avro :: binary()) ::
+  @spec from_avro(avro :: binary(), ctx :: binary()) ::
           {:ok, t()} | {:error, %Cloudevents.Format.Decoder.DecodeError{}}
-  defdelegate from_avro(avro), to: Format.Decoder.Avro, as: :decode
+  defdelegate from_avro(avro, ctx), to: Format.Decoder.Avro, as: :decode
 
   # ---
 

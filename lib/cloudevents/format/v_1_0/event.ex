@@ -114,6 +114,20 @@ defmodule Cloudevents.Format.V_1_0.Event do
 
   # ---
 
+  defp try_decode(key, val) when is_binary(val) do
+    case Jason.decode(val) do
+      {:ok, val_map} ->
+        {key, val_map}
+
+      _ ->
+        {key, val}
+    end
+  end
+
+  defp try_decode(key, val), do: {key, val}
+
+  # ---
+
   defp validated_extensions_attributes(extension_attrs) do
     invalid =
       extension_attrs
@@ -123,7 +137,8 @@ defmodule Cloudevents.Format.V_1_0.Event do
 
     case invalid do
       [] ->
-        {:ok, extension_attrs}
+        extensions = Map.new(extension_attrs, fn {key, val} -> try_decode(key, val) end)
+        {:ok, extensions}
 
       _ ->
         {:error,
