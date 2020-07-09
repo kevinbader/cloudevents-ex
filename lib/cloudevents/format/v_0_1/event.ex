@@ -4,6 +4,18 @@ defmodule Cloudevents.Format.V_0_1.Event do
   use TypedStruct
   alias Cloudevents.Format.ParseError
 
+  # %Cloudevents.Format.V_0_1.Event{
+  #   cloudEventsVersion: "0.1",
+  #   contentType: "application/json",
+  #   data: %{"foo" => "avro required"},
+  #   eventID: "1",
+  #   eventTime: nil,
+  #   eventType: "rig.avro.test1",
+  #   extensions: %{},
+  #   schemaURL: nil,
+  #   source: "/test-producer"
+  # }
+
   @typedoc @desc
   typedstruct do
     field(:cloudEventsVersion, String.t(), default: "0.1")

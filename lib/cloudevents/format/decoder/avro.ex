@@ -6,15 +6,16 @@ defmodule Cloudevents.Format.Decoder.Avro do
   alias Cloudevents.Format.V_1_0
 
   @doc "Decodes an Avro binary to a Cloudevent."
-  @callback decode(avro :: binary, ctx :: binary) ::
+  @callback decode(avro :: binary, ctx_attrs :: map) ::
               {:ok, Cloudevents.t()} | {:error, %DecodeError{}}
 
   @doc "Decodes an Avro binary to a Cloudevent."
-  @spec decode(avro :: binary, ctx :: binary) :: {:ok, Cloudevents.t()} | {:error, %DecodeError{}}
-  def decode(avro, ctx) when byte_size(avro) > 0 do
-    with {:error, error_1_0} <- V_1_0.Decoder.Avro.decode(avro, ctx),
-         {:error, error_0_2} <- V_0_2.Decoder.Avro.decode(avro, ctx),
-         {:error, error_0_1} <- V_0_1.Decoder.Avro.decode(avro, ctx) do
+  @spec decode(avro :: binary, ctx_attrs :: map) ::
+          {:ok, Cloudevents.t()} | {:error, %DecodeError{}}
+  def decode(avro, ctx_attrs) when byte_size(avro) > 0 do
+    with {:error, error_1_0} <- V_1_0.Decoder.Avro.decode(avro, ctx_attrs),
+         {:error, error_0_2} <- V_0_2.Decoder.Avro.decode(avro, ctx_attrs),
+         {:error, error_0_1} <- V_0_1.Decoder.Avro.decode(avro, ctx_attrs) do
       {:error, %DecodeError{cause: [error_1_0, error_0_2, error_0_1]}}
     else
       {:ok, event} -> {:ok, event}

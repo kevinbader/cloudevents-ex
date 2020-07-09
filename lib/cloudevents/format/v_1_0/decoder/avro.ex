@@ -9,8 +9,7 @@ defmodule Cloudevents.Format.V_1_0.Decoder.Avro do
   @doc "Decodes an Avro binary into a Cloudevent v1.0 struct."
   def decode(avro, ctx_attrs \\ %{}) do
     with {:decode, {:ok, map}} <- {:decode, unpack_decoded(Avrora.decode(avro))},
-         {:parse, {:ok, event}} <-
-           {:parse, try_parse(map, ctx_attrs)} do
+         {:parse, {:ok, event}} <- {:parse, try_parse_ctx_attrs(map, ctx_attrs)} do
       {:ok, event}
     else
       {:decode, {:error, %MatchError{}}} ->
@@ -30,11 +29,13 @@ defmodule Cloudevents.Format.V_1_0.Decoder.Avro do
     end
   end
 
-  defp try_parse(map, ctx_attrs) when ctx_attrs == %{} do
+  # ---
+
+  defp try_parse_ctx_attrs(map, ctx_attrs) when ctx_attrs == %{} do
     Event.from_map(map)
   end
 
-  defp try_parse(map, ctx_attrs) do
+  defp try_parse_ctx_attrs(map, ctx_attrs) do
     ctx_attrs |> Map.merge(%{"data" => map}) |> Event.from_map()
   end
 

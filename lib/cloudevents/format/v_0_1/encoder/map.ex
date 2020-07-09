@@ -19,8 +19,8 @@ defimpl Cloudevents.Format.Encoder.Map, for: Cloudevents.Format.V_0_1.Event do
         eventID: eventID
       }
       |> add_if_set(event, :subject)
-      |> add_if_set(event, :time)
-      # |> add_if_set(event, :datacontenttype)
+      |> add_if_set(event, :eventTime)
+      |> add_if_set(event, :contentType)
       |> add_if_set(event, :data)
 
     extensions = Map.get(event, :extensions, %{})

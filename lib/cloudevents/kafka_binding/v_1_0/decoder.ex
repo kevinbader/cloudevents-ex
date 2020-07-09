@@ -15,9 +15,6 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
         ) ::
           {:ok, Cloudevents.t()} | {:error, any}
   def from_kafka_message(kafka_body, kafka_headers) do
-    IO.inspect(kafka_headers, label: "from_kafka_message")
-    IO.inspect(content_type(kafka_headers), label: "content_type")
-
     case content_type(kafka_headers) do
       "application/cloudevents" ->
         parse_structured(kafka_body, "json")
@@ -31,9 +28,6 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
 
       "application/cloudevents-batch" <> _ ->
         {:error, :batch_mode_not_available_as_per_spec}
-
-      nil ->
-        parse_structured(kafka_body, "json")
 
       event_format ->
         parse_binary(kafka_headers, kafka_body, event_format)
@@ -94,7 +88,7 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
       |> hd()
       |> String.downcase()
     else
-      nil
+      "application/cloudevents+json"
     end
   end
 end
