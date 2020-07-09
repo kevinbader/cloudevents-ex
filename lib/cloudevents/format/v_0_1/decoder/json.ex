@@ -73,13 +73,8 @@ defmodule Cloudevents.Format.V_0_1.Decoder.JSON do
   def decode(json) do
     with {:ok, orig_map} <- Jason.decode(json),
          {:ok, event} <- Event.from_map(orig_map) do
-      data =
-        if Map.has_key?(orig_map, "data_base64") do
-          event.data
-        else
-          # If contenttype is application/json and data is a string, data could be an encoded JSON structure :/
-          decode_json_if_possible(event.content_type, event.data)
-        end
+      # If contenttype is application/json and data is a string, data could be an encoded JSON structure :/
+      data = decode_json_if_possible(event.contentType, event.data)
 
       event = Map.put(event, :data, data)
       {:ok, event}
@@ -89,9 +84,9 @@ defmodule Cloudevents.Format.V_0_1.Decoder.JSON do
     end
   end
 
-  defp decode_json_if_possible(content_type, data) when byte_size(data) > 0 do
+  defp decode_json_if_possible(contentType, data) when byte_size(data) > 0 do
     # This is likely good enough but perhaps we should do proper mime type handling here..
-    case content_type do
+    case contentType do
       "application/json" <> _ ->
         case Jason.decode(data) do
           {:ok, decoded} -> decoded
