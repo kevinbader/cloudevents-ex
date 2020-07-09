@@ -15,12 +15,9 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
         ) ::
           {:ok, Cloudevents.t()} | {:error, any}
   def from_kafka_message(kafka_body, kafka_headers) do
-    case content_type(kafka_headers) do
+    case content_type(kafka_headers, kafka_body) do
       "application/cloudevents" ->
         parse_structured(kafka_body, "json")
-
-      "application/cloudevents+avro" ->
-        parse_binary(kafka_headers, kafka_body, :avro)
 
       "application/cloudevents+" <> event_format ->
         parsed_event_format = event_format |> String.split(";") |> List.first()
@@ -36,7 +33,7 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
 
   # ---
 
-  defp parse_binary(kafka_headers, data, :avro) do
+  defp parse_binary(kafka_headers, data, "avro/binary") do
     ctx_attrs = for {"ce_" <> key, val} <- kafka_headers, into: %{}, do: {key, val}
     Cloudevents.from_avro(data, ctx_attrs)
   end
@@ -80,7 +77,7 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
 
   # ---
 
-  defp content_type(headers) do
+  defp content_type(headers, kafka_body) do
     content_type = for({"content-type", content_type} <- headers, do: content_type)
 
     if length(content_type) == 1 do
@@ -88,7 +85,10 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
       |> hd()
       |> String.downcase()
     else
-      "application/cloudevents+json"
+      case kafka_body do
+        <<0::8, _id::32, _body::binary>> -> "avro/binary"
+        _ -> "application/cloudevents+json"
+      end
     end
   end
 end

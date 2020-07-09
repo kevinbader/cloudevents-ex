@@ -48,7 +48,7 @@ defmodule Cloudevents.Kafka.Binding_1_0.DeserializeFormat_1_0_Test do
     }
 
     headers = %{
-      "content-type" => "application/cloudevents+avro",
+      "content-type" => "avro/binary",
       "ce_specversion" => "1.0",
       "ce_type" => "com.example.test.simple",
       "ce_source" => "rig-test",
