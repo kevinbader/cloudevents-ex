@@ -1,12 +1,12 @@
-defmodule Cloudevents.Format.V_1_0.Decoder.Avro do
+defmodule Cloudevents.Format.V_0_1.Decoder.Avro do
   @moduledoc false
   @behaviour Cloudevents.Format.Decoder.Avro
 
   alias Cloudevents.Format.Decoder.DecodeError
   alias Cloudevents.Format.ParseError
-  alias Cloudevents.Format.V_1_0.Event
+  alias Cloudevents.Format.V_0_1.Event
 
-  @doc "Decodes an Avro binary into a Cloudevent v1.0 struct."
+  @doc "Decodes an Avro binary into a Cloudevent v0.1 struct."
   def decode(avro, ctx_attrs \\ %{}) do
     with {:decode, {:ok, map}} <- {:decode, unpack_decoded(Avrora.decode(avro))},
          {:parse, {:ok, event}} <- {:parse, try_parse_ctx_attrs(map, ctx_attrs)} do

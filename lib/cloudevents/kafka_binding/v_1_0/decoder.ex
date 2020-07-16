@@ -15,15 +15,28 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
         ) ::
           {:ok, Cloudevents.t()} | {:error, any}
   def from_kafka_message(kafka_body, kafka_headers) do
-    case content_type(kafka_headers) do
-      "application/cloudevents" -> parse_structured(kafka_body, "json")
-      "application/cloudevents+" <> event_format -> parse_structured(kafka_body, event_format)
-      "application/cloudevents-batch" <> _ -> {:error, :batch_mode_not_available_as_per_spec}
-      event_format -> parse_binary(kafka_headers, kafka_body, event_format)
+    case content_type(kafka_headers, kafka_body) do
+      "application/cloudevents" ->
+        parse_structured(kafka_body, "json")
+
+      "application/cloudevents+" <> event_format ->
+        parsed_event_format = event_format |> String.split(";") |> List.first()
+        parse_structured(kafka_body, parsed_event_format)
+
+      "application/cloudevents-batch" <> _ ->
+        {:error, :batch_mode_not_available_as_per_spec}
+
+      event_format ->
+        parse_binary(kafka_headers, kafka_body, event_format)
     end
   end
 
   # ---
+
+  defp parse_binary(kafka_headers, data, "avro/binary") do
+    ctx_attrs = for {"ce_" <> key, val} <- kafka_headers, into: %{}, do: {key, val}
+    Cloudevents.from_avro(data, ctx_attrs)
+  end
 
   defp parse_binary(kafka_headers, data, event_format) do
     ctx_attrs = for {"ce_" <> key, val} <- kafka_headers, into: %{}, do: {key, val}
@@ -51,6 +64,10 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
 
   # ---
 
+  defp parse_structured(<<0::8, _id::32, _body::binary>> = kafka_body, _event_format) do
+    Cloudevents.from_avro(kafka_body, %{})
+  end
+
   defp parse_structured(kafka_body, event_format) do
     case event_format do
       "json" -> Format.Decoder.JSON.decode(kafka_body)
@@ -60,9 +77,18 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
 
   # ---
 
-  defp content_type(headers) do
-    for({"content-type", content_type} <- headers, do: content_type)
-    |> hd()
-    |> String.downcase()
+  defp content_type(headers, kafka_body) do
+    content_type = for({"content-type", content_type} <- headers, do: content_type)
+
+    if length(content_type) == 1 do
+      content_type
+      |> hd()
+      |> String.downcase()
+    else
+      case kafka_body do
+        <<0::8, _id::32, _body::binary>> -> "avro/binary"
+        _ -> "application/cloudevents+json"
+      end
+    end
   end
 end
