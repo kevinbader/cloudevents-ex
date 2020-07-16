@@ -23,14 +23,14 @@ Work in progress.
 | Spec                         | Status                            |
 | :--------------------------- | :-------------------------------- |
 | **Core Specification:**      |                                   |
-| CloudEvents                  | Support for v1.0 is there.        |
+| CloudEvents                  | v0.1, v0.2, v1.0                  |
 |                              |                                   |
 | **Optional Specifications:** |                                   |
 | AMQP Protocol Binding        | out of scope for now (PR welcome) |
 | AVRO Event Format            | todo (PR welcome)                 |
 | HTTP Protocol Binding        | wip (done except batch mode)      |
 | JSON Event Format            | done                              |
-| Kafka Protocol Binding       | todo (PR welcome)                 |
+| Kafka Protocol Binding       | v1.0                              |
 | MQTT Protocol Binding        | out of scope for now (PR welcome) |
 | NATS Protocol Binding        | out of scope for now (PR welcome) |
 | Web hook                     | out of scope for now (PR welcome) |
