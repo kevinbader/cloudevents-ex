@@ -43,7 +43,7 @@ Add `cloudevents` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:cloudevents, "~> 0.2.0"}]
+  [{:cloudevents, "~> 0.3.0"}]
 end
 ```
 
