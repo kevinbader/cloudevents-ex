@@ -31,13 +31,13 @@ defmodule Cloudevents.MixProject do
   defp deps do
     [
       # Docs:
-      {:ex_doc, ">= 0.22.1", only: :dev},
+      {:ex_doc, ">= 0.22.1", only: :dev, runtime: false},
       # Linting:
-      {:credo, ">= 1.4.0", only: [:dev, :test]},
+      {:credo, ">= 1.4.0", only: [:dev, :test], runtime: false},
       # Static type checks:
-      {:dialyxir, ">= 1.0.0", only: :dev},
+      {:dialyxir, ">= 1.0.0", only: [:dev], runtime: false},
       # Run all static code checks via `mix check`:
-      {:ex_check, ">= 0.11.0", only: :dev},
+      {:ex_check, ">= 0.11.0", only: :dev, runtime: false},
       # A library for defining structs with a type without writing boilerplate code:
       {:typed_struct, "~> 0.2.0"},
       # JSON parser:
