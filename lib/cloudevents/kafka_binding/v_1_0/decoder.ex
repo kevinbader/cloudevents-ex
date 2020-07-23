@@ -78,11 +78,11 @@ defmodule Cloudevents.KafkaBinding.V_1_0.Decoder do
   # ---
 
   defp content_type(headers, kafka_body) do
-    content_type = for({"content-type", content_type} <- headers, do: content_type)
+    content_type = Enum.find(headers, &(&1 |> elem(0) |> String.downcase() == "content-type"))
 
-    if length(content_type) == 1 do
+    if content_type do
       content_type
-      |> hd()
+      |> elem(1)
       |> String.downcase()
     else
       case kafka_body do

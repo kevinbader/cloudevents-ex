@@ -22,6 +22,25 @@ defmodule Cloudevents.Kafka.Binding_1_0.DeserializeFormat_1_0_Test do
     assert event.data == "this is the content"
   end
 
+  test "Payload in body, context attributes in the header, Content-Type with upper case" do
+    body = "this is the content"
+
+    headers = %{
+      "Content-Type" => "text/plain",
+      "ce_specversion" => "1.0",
+      "ce_type" => "some-type",
+      "ce_source" => "some-source",
+      "ce_id" => "1"
+    }
+
+    assert {:ok, event} = Cloudevents.from_kafka_message(body, headers)
+    assert event.type == "some-type"
+    assert event.source == "some-source"
+    assert event.id == "1"
+    assert event.datacontenttype == "text/plain"
+    assert event.data == "this is the content"
+  end
+
   test "A JSON payload in the body is decoded" do
     body = """
     {
