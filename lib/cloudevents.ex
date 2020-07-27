@@ -78,7 +78,9 @@ defmodule Cloudevents do
   @impl Supervisor
   def init(opts) do
     # e.g. http://localhost:8081, default to http://, so it's more user friendly
-    registry_url = opts |> Keyword.get(:confluent_schema_registry_url) |> registry_url_with_http_schema()
+    registry_url =
+      opts |> Keyword.get(:confluent_schema_registry_url) |> registry_url_with_http_schema()
+
     Application.put_env(:avrora, :registry_url, registry_url, persistent: true)
 
     schemas_path = Keyword.get(opts, :avro_schemas_path, Path.expand("./priv/schemas"))
@@ -108,8 +110,13 @@ defmodule Cloudevents do
   # ---
 
   defp registry_url_with_http_schema("http://" <> _registry_host = registry_url), do: registry_url
-  defp registry_url_with_http_schema("https://" <> _registry_host = registry_url), do: registry_url
-  defp registry_url_with_http_schema(registry_url) when is_binary(registry_url), do: "http://" <> registry_url
+
+  defp registry_url_with_http_schema("https://" <> _registry_host = registry_url),
+    do: registry_url
+
+  defp registry_url_with_http_schema(registry_url) when is_binary(registry_url),
+    do: "http://" <> registry_url
+
   defp registry_url_with_http_schema(nil), do: nil
 
   @doc """
