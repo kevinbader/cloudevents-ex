@@ -110,7 +110,7 @@ defmodule Cloudevents do
   defp registry_url_with_http_schema("http://" <> _registry_host = registry_url), do: registry_url
   defp registry_url_with_http_schema("https://" <> _registry_host = registry_url), do: registry_url
   defp registry_url_with_http_schema(registry_url) when is_binary(registry_url), do: "http://" <> registry_url
-  defp registry_url_with_http_schema(registry_url), do: registry_url
+  defp registry_url_with_http_schema(nil), do: nil
 
   @doc """
   Converts an Elixir map into a Cloudevent.
