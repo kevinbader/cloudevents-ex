@@ -14,11 +14,6 @@ defmodule Cloudevents.KafkaBinding.Decoder do
           Cloudevents.kafka_headers()
         ) ::
           {:ok, Cloudevents.t()} | {:error, any}
-  def from_kafka_message(kafka_body, kafka_headers) do
-    with {:error, _} = error <- V_1_0.Decoder.from_kafka_message(kafka_body, kafka_headers) do
-      error
-    else
-      {:ok, event} -> {:ok, event}
-    end
-  end
+  def from_kafka_message(kafka_body, kafka_headers),
+    do: V_1_0.Decoder.from_kafka_message(kafka_body, kafka_headers)
 end

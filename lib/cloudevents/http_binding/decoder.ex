@@ -13,11 +13,6 @@ defmodule Cloudevents.HttpBinding.Decoder do
           Cloudevents.http_body(),
           Cloudevents.http_headers()
         ) :: {:ok, [Cloudevents.t()]} | {:error, any}
-  def from_http_message(http_body, http_headers) do
-    with {:error, _} = error <- V_1_0.Decoder.from_http_message(http_body, http_headers) do
-      error
-    else
-      {:ok, events} -> {:ok, events}
-    end
-  end
+  def from_http_message(http_body, http_headers),
+    do: V_1_0.Decoder.from_http_message(http_body, http_headers)
 end
