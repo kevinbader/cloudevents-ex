@@ -39,7 +39,7 @@ defmodule Cloudevents.MixProject do
       # Run all static code checks via `mix check`:
       {:ex_check, ">= 0.11.0", only: :dev, runtime: false},
       # A library for defining structs with a type without writing boilerplate code:
-      {:typed_struct, "~> 0.2.0"},
+      {:typed_struct, "~> 0.3.0"},
       # JSON parser:
       {:jason, "~> 1.2"},
       # Avro encoding/decoding:
