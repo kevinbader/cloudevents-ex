@@ -253,7 +253,7 @@ defmodule Cloudevents do
       ...>   source: "some-source",
       ...>   id: "1",
       ...>   data: %{"foo" => "bar"}})
-      iex> {body, headers} = Cloudevents.to_http_binary_message(event)
+      iex> {_body, _headers} = Cloudevents.to_http_binary_message(event)
       {
         "{\\"foo\\":\\"bar\\"}",
         [
@@ -311,7 +311,7 @@ defmodule Cloudevents do
       ...>   source: "some-source",
       ...>   id: "1",
       ...>   data: %{"foo" => "bar"}})
-      iex> {body, headers} = Cloudevents.to_kafka_binary_message(event)
+      iex> {_body, _headers} = Cloudevents.to_kafka_binary_message(event)
       {
         "{\\"foo\\":\\"bar\\"}",
         [
