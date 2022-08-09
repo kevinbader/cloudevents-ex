@@ -6,8 +6,8 @@ defmodule Cloudevents.MixProject do
     [
       app: :cloudevents,
       description: description(),
-      version: "0.4.0",
-      elixir: "~> 1.10",
+      version: "0.5.0",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
@@ -33,7 +33,7 @@ defmodule Cloudevents.MixProject do
       # Docs:
       {:ex_doc, ">= 0.22.1", only: :dev, runtime: false},
       # Linting:
-      {:credo, ">= 1.4.0", only: [:dev, :test], runtime: false},
+      {:credo, ">= 1.6.0", only: [:dev, :test], runtime: false},
       # Static type checks:
       {:dialyxir, ">= 1.0.0", only: [:dev], runtime: false},
       # Run all static code checks via `mix check`:
@@ -43,7 +43,7 @@ defmodule Cloudevents.MixProject do
       # JSON parser:
       {:jason, "~> 1.2"},
       # Avro encoding/decoding:
-      {:avrora, "~> 0.11"}
+      {:avrora, "~> 0.21"}
     ]
   end
 

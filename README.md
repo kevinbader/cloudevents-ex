@@ -16,9 +16,12 @@ Cloudevents is released under the Apache License 2.0 - see the [LICENSE](LICENSE
 
 <div id="status">
 
-## Status
+## Supported versions
 
-Work in progress.
+* OTP 25.0 and later
+* Elixir 1.13 and later
+
+## Status
 
 | Spec                         | Status                            |
 | :--------------------------- | :-------------------------------- |
@@ -43,7 +46,7 @@ Add `cloudevents` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:cloudevents, "~> 0.4.0"}]
+  [{:cloudevents, "~> 0.5.0"}]
 end
 ```
 
