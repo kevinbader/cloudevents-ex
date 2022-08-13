@@ -1,0 +1,37 @@
+name: CI-test
+
+on:
+  pull_request:
+  push:
+    branches: [ master, foo ]
+    tags: [ 'v*' ]
+
+jobs:
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        otp: ['25.0']
+        elixir: ['1.13']
+    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    runs-on: ubuntu-22.04
+    env:
+      MIX_ENV: test
+    steps:
+      - run: echo would run tests for ${{ github.event.ref }}
+
+  dialyzer:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+    steps:
+      - run: echo would run dialyzer for ${{ github.event.ref }}
+
+  release:
+    # only if tag and if tag is in master
+    if: startsWith(github.event.ref, 'refs/tags/v') && github.event.created
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo would release ${{ github.event.ref }}

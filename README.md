@@ -8,7 +8,7 @@
 
 Cloudevents is an Elixir [SDK] for consuming and producing [CloudEvents] with support for various transport protocols and codecs. If you want to learn more about the specification itself, make sure to check out the [official spec on GitHub].
 
-Cloudevents is released under the Apache License 2.0 - see the [LICENSE](LICENSE) file.
+Cloudevents is released under the Apache License 2.0 - see the [LICENSE](LICENSE) file. If you'd like to contribute, check out [CONTRIBUTING.md](./CONTRIBUTING.md) for a few notes on that.
 
 [CloudEvents]: https://cloudevents.io/
 [SDK]: https://github.com/cloudevents/spec/blob/master/SDK.md
