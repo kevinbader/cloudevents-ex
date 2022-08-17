@@ -54,7 +54,14 @@ Use `Cloudevents.from_map/1` to create your first Cloudevent and see its JSON re
 
 If you're dealing with HTTP requests, `Cloudevents.from_http_message/2`, `Cloudevents.to_http_binary_message/1` and `Cloudevents.to_http_structured_message/2` are your friends.
 
-If you need Avro, you need to add `Cloudevents` to your supervisor:
+If you need Avro, you need to add `avrora` to your dependency list:
+```elixir
+def deps do
+  [{:avrora, "~> 0.21"}]
+end
+```
+
+Then, you need to add `Cloudevents` to your supervisor:
 
 ```elixir
 children = [
