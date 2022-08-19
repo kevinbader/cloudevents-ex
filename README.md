@@ -46,7 +46,7 @@ Add `cloudevents` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:cloudevents, "~> 0.6.0"}]
+  [{:cloudevents, "~> 0.6.1"}]
 end
 ```
 
@@ -74,5 +74,5 @@ Supervisor.start_link(children, strategy: :one_for_one)
 Or start `Cloudevents` manually:
 
 ```elixir
-{:ok, pid} = Cloudevents.start_link()
+{:ok, pid} = Cloudevents.start_link([])
 ```

@@ -65,7 +65,11 @@ defmodule Cloudevents do
   """
   @spec start_link(options) :: {:ok, pid} | {:error, any}
   def start_link(opts) do
-    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+    if Code.ensure_loaded?(Avrora) do
+      Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+    else
+      {:error, "Avrora dependency is required for Avro support"}
+    end
   end
 
   @doc """
